@@ -58,8 +58,8 @@ public class CameraController : MonoBehaviour {
 
         moveDirection = (transform.forward * Input.GetAxis ("Vertical") * speed) + (transform.right * Input.GetAxis("Horizontal") * speed);
         controller.Move(moveDirection * Time.deltaTime);
-     if (controller.transform.position.y > 100) {
-      controller.transform.position = new Vector3(controller.transform.position.x, 100, controller.transform.position.z);
+     if (controller.transform.position.y > 1) {
+      controller.transform.position = new Vector3(controller.transform.position.x, 1, controller.transform.position.z);
    } else if (controller.transform.position.y < 1) {
       controller.transform.position = new Vector3(controller.transform.position.x, 1, controller.transform.position.z);
    }
