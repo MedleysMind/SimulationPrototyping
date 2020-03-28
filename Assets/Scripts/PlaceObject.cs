@@ -61,6 +61,8 @@ public class PlaceObject : MonoBehaviour {
         if (Physics.Raycast (ray, out hitInfo, 300f, clickMask)) {
                 // clickPosition = hitInfo.point;
                 currentPlaceableObject.transform.position = hitInfo.point;
+                //prevents object from clippiung through ground layer ***NEED THIS
+                currentPlaceableObject.transform.position +=  new Vector3(0f, .5f, 0f);
                 currentPlaceableObject.transform.rotation = Quaternion.FromToRotation (Vector3.up, hitInfo.normal);
             
         }

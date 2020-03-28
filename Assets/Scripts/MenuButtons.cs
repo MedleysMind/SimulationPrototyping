@@ -16,7 +16,7 @@ public class MenuButtons : MonoBehaviour {
     void Update () {
         // Toggles Pause Menu during gameplay
         if (Input.GetKeyDown (KeyCode.Escape)) {
-            if (paused) {
+            if (paused == false) {
                 PauseGame ();
             } else {
                 ResumeGame ();
