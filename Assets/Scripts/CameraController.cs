@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour {
+    
+    public static CameraController instance;
     public Transform target;
     public Vector3 targetOffset;
     public float distance = 5.0f;
@@ -15,6 +17,7 @@ public class CameraController : MonoBehaviour {
     public int zoomRate = 40;
     public float panSpeed = 0.3f;
     public float zoomDampening = 5.0f;
+    public float rotationAmount;
 
     private float xDeg = 0.0f;
     private float yDeg = 0.0f;
@@ -25,11 +28,15 @@ public class CameraController : MonoBehaviour {
     private Quaternion rotation;
     private Vector3 position;
     private Vector3 moveDirection;
+
+
     public CharacterController controller;
 
     public float speed = 100;
 
-    void Start () { Init (); }
+    void Start () { Init ();
+    instance = this;
+     }
     void OnEnable () { Init (); }
 
     public void Init () {
@@ -56,26 +63,27 @@ public class CameraController : MonoBehaviour {
 
     public void Update () {
 
-        moveDirection = (transform.forward * Input.GetAxis ("Vertical") * speed) + (transform.right * Input.GetAxis("Horizontal") * speed);
-        controller.Move(moveDirection * Time.deltaTime);
-     if (controller.transform.position.y > 1) {
-      controller.transform.position = new Vector3(controller.transform.position.x, 1, controller.transform.position.z);
-   } else if (controller.transform.position.y < 1) {
-      controller.transform.position = new Vector3(controller.transform.position.x, 1, controller.transform.position.z);
-   }
+     
     }
 
     /*
      * Camera logic on LateUpdate to only update after all character movement logic has been handled. 
      */
     void LateUpdate () {
-
+        // Handles WASD movement on camera rig
+   moveDirection = (transform.forward * Input.GetAxis ("Vertical") * speed) + (transform.right * Input.GetAxis("Horizontal") * speed);
+        controller.Move(moveDirection * Time.deltaTime);
+     if (controller.transform.position.y > 1) {
+      controller.transform.position = new Vector3(controller.transform.position.x, 1, controller.transform.position.z);
+   } if (controller.transform.position.y < 1) {
+      controller.transform.position = new Vector3(controller.transform.position.x, 1, controller.transform.position.z);
+   }
         // If Control and Alt and Middle button? ZOOM!
         // if (Input.GetMouseButton(2) && Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl))
         // {
         //     desiredDistance -= Input.GetAxis("Mouse Y") * Time.deltaTime * zoomRate*0.125f * Mathf.Abs(desiredDistance);
         // }
-        // If middle mouse is selected, ORBIT
+        // If middle mouse is selected, ORBIT ROTATION
         if (Input.GetMouseButton (2)) {
             xDeg += Input.GetAxis ("Mouse X") * xSpeed * 0.02f;
             yDeg -= Input.GetAxis ("Mouse Y") * ySpeed * 0.02f;
@@ -92,13 +100,31 @@ public class CameraController : MonoBehaviour {
             transform.rotation = rotation;
         }
        
+//  if (isCamera = true && Input.GetMouseButton(1))
+//         {
+//             // transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * panSpeed, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * panSpeed, 0);
+//             //grab the rotation of the camera so we can move in a psuedo local XY space
+//             target.rotation = transform.rotation;
+//             target.Translate(Vector3.right * -Input.GetAxis("Mouse X") * panSpeed, target);
+//             // target.Translate(transform.forward * -Input.GetAxis("Mouse Y") * panSpeed);
+//         }
+
         //rotates the camera to the left
-        else if (Input.GetKeyDown ("q")) {
+         if (Input.GetKey(KeyCode.Q)) {
+           xDeg += rotationAmount * xSpeed * 0.02f;
+           desiredRotation = Quaternion.Euler (yDeg, xDeg, 0);
+            currentRotation = transform.rotation;
 
+            rotation = Quaternion.Lerp (currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
+            transform.rotation = rotation;
         }
-        //rotates the camera to the right
-        else if (Input.GetKeyDown ("e")) {
+         if (Input.GetKey(KeyCode.E)) {
+            xDeg -= rotationAmount * xSpeed * 0.02f;
+           desiredRotation = Quaternion.Euler (yDeg, xDeg, 0);
+            currentRotation = transform.rotation;
 
+            rotation = Quaternion.Lerp (currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
+            transform.rotation = rotation;
         }
 
         ////////Orbit Position
@@ -110,9 +136,17 @@ public class CameraController : MonoBehaviour {
         // For smoothing of the zoom, lerp distance
         currentDistance = Mathf.Lerp (currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
 
+        // For Smooth rotation
+        currentRotation = Quaternion.Lerp(currentRotation, desiredRotation, Time.deltaTime * panSpeed);
+
         // calculate position based on the new currentDistance 
         position = target.position - (rotation * Vector3.forward * currentDistance + targetOffset);
         transform.position = position;
+
+        if(Input.GetKey(KeyCode.Space)){
+                
+            
+        }
     }
 
     private static float ClampAngle (float angle, float min, float max) {

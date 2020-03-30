@@ -5,17 +5,19 @@ using UnityEngine.UI;
 
 public class PlaceObject : MonoBehaviour {
     [SerializeField]
-    private GameObject placeableObjectPrefab;
+    private GameObject actualObject;
 
     [SerializeField]
     // private KeyCode newObjectHotkey = KeyCode.A;
 
-    private GameObject currentPlaceableObject;
+    public GameObject temporaryObjectBlueprint;
 
     private float mouseWheelRotation;
 
     public LayerMask clickMask; 
     public Button UIButton;
+
+    private float timer;
 
 
  void Start(){
@@ -23,34 +25,45 @@ public class PlaceObject : MonoBehaviour {
         btn.onClick.AddListener(HandleNewObjectHotkey);
 }
 
-    private void Update () {
+    private void LateUpdate () {
         // HandleNewObjectHotkey ();
 
-        if (currentPlaceableObject != null) {
+        if (temporaryObjectBlueprint != null) {
             MoveCurrentObjectToMouse ();
             // RotateFromMouseWheel ();
             ReleaseIfClicked ();
         }
 
-               if(Input.GetMouseButtonDown(1)) {
-                Destroy (currentPlaceableObject);
 
+  if(Input.GetMouseButtonUp(1)) {
+            // timer = Time.time;
+            // if(Input.GetMouseButtonUp(1)){
+            //     if(Time.time-timer < .5f){
+            //     Destroy (temporaryObjectBlueprint);
+
+            //     }
+            // } else{
+
+            // }
+                Destroy (temporaryObjectBlueprint);
+            
         }
+        //        if(Input.GetMouseButtonDown(1)) {
+        //         Destroy (temporaryObjectBlueprint);
+
+        // }
     }
 
     public void HandleNewObjectHotkey () {
         // if (Input.GetKeyDown (newObjectHotkey)) {
-            if (currentPlaceableObject != null) {
-                Destroy (currentPlaceableObject);
+            if (temporaryObjectBlueprint != null) {
+                DestroyImmediate (temporaryObjectBlueprint, true);
             } else {
-                currentPlaceableObject = Instantiate (placeableObjectPrefab);
+                temporaryObjectBlueprint = Instantiate (actualObject);
             }
         // }
 
-        if(Input.GetMouseButtonDown(1)) {
-                Destroy (currentPlaceableObject);
-
-        }
+      
     }
 
     private void MoveCurrentObjectToMouse () {
@@ -60,14 +73,14 @@ public class PlaceObject : MonoBehaviour {
 
         if (Physics.Raycast (ray, out hitInfo, 300f, clickMask)) {
                 // clickPosition = hitInfo.point;
-                currentPlaceableObject.transform.position = hitInfo.point;
+                temporaryObjectBlueprint.transform.position = hitInfo.point;
                 //prevents object from clippiung through ground layer ***NEED THIS
-                currentPlaceableObject.transform.position +=  new Vector3(0f, .5f, 0f);
-                currentPlaceableObject.transform.rotation = Quaternion.FromToRotation (Vector3.up, hitInfo.normal);
+                temporaryObjectBlueprint.transform.position +=  new Vector3(0f, .5f, 0f);
+                temporaryObjectBlueprint.transform.rotation = Quaternion.FromToRotation (Vector3.up, hitInfo.normal);
             
         }
         else{
-            Destroy (currentPlaceableObject);
+            DestroyImmediate (temporaryObjectBlueprint, true);
         }
     }
 
@@ -79,7 +92,7 @@ public class PlaceObject : MonoBehaviour {
 
     private void ReleaseIfClicked () {
         if (Input.GetMouseButtonDown (0)) {
-            currentPlaceableObject = null;
+            temporaryObjectBlueprint = null;
         }
     }
 }
