@@ -34,8 +34,9 @@ public class PlaceObject : MonoBehaviour {
             ReleaseIfClicked ();
         }
 
-
-  if(Input.GetMouseButtonUp(1)) {
+// Deselects current object placement
+  if(Input.GetMouseButtonUp(1) || Input.GetKey(KeyCode.Escape)) {
+      // Checks to see if button is pressed quickly to allow for mouse pan while in placement mode
             // timer = Time.time;
             // if(Input.GetMouseButtonUp(1)){
             //     if(Time.time-timer < .5f){

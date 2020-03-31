@@ -837,7 +837,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.2588191, y: -0, z: -0, w: 0.9659258}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1094949199}
@@ -866,11 +866,14 @@ MonoBehaviour:
   yMinLimit: 1
   yMaxLimit: 80
   zoomRate: 100
-  panSpeed: 10
   zoomDampening: 5
+  zoomAmount: 1
   rotationAmount: 0.25
-  controller: {fileID: 1793661859}
+  panSpeed: 0.3
   speed: 100
+  controller: {fileID: 1793661859}
+  edgeScroll: 0
+  mousePan: 0
 --- !u!1 &1069888585
 GameObject:
   m_ObjectHideFlags: 0
