@@ -25,6 +25,7 @@ public class MenuButtons : MonoBehaviour {
     }
     // Main Menu button management
     public void NewGame () {
+        Time.timeScale = 1.0f;
         SceneManager.LoadScene (1);
     }
     public void LoadGame () {

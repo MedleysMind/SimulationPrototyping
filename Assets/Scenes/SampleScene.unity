@@ -864,7 +864,7 @@ MonoBehaviour:
   xSpeed: 200
   ySpeed: 200
   yMinLimit: 1
-  yMaxLimit: 80
+  yMaxLimit: 70
   zoomRate: 100
   zoomDampening: 5
   zoomAmount: 1
@@ -874,6 +874,7 @@ MonoBehaviour:
   controller: {fileID: 1793661859}
   edgeScroll: 0
   mousePan: 0
+  cameraRigFocus: 0
 --- !u!1 &1069888585
 GameObject:
   m_ObjectHideFlags: 0
@@ -1526,10 +1527,10 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 0.05
-  m_Radius: 0.05
+  m_Height: 0.002
+  m_Radius: 0.002
   m_SlopeLimit: 90
-  m_StepOffset: 0.05
+  m_StepOffset: 0.001
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}

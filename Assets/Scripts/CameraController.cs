@@ -17,7 +17,7 @@ public class CameraController : MonoBehaviour {
     public int zoomRate = 40;
     public float zoomDampening = 5.0f;
     public float zoomAmount = .5f;
-    public float rotationAmount;
+    public float rotationAmount = .25f;
 
     public float panSpeed = 1000;
     private float xDeg = 0.0f;
@@ -67,8 +67,10 @@ public class CameraController : MonoBehaviour {
     public void Update () {
         // Only allows input on camera rig if it is the object in focus
         if (!cameraRigFocus) {
-            // Mouse pan movement logic
+            
+            // Allows player to turn off in settings
             if (!mousePan) {
+                // Mouse pan movement logic
                 if (Input.GetMouseButton (1)) {
                     // transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * speed/5, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * speed/5, 0);
                     //grab the rotation of the camera so we can move in a psuedo local XY space
@@ -79,8 +81,9 @@ public class CameraController : MonoBehaviour {
                     controller.Move (moveDirection * Time.deltaTime);
                 }
             }
-            // Edge of screen movement scroll
+            // Allows player to turn off in settings
             if (!edgeScroll) {
+                // Edge of screen movement scroll
                 float edgeSize = 5f;
                 if (Input.mousePosition.x > Screen.width - edgeSize) {
                     moveDirection += (transform.right * speed / 2);
@@ -111,11 +114,11 @@ public class CameraController : MonoBehaviour {
             // WASD directional movement on camera rig controller
             moveDirection = (transform.forward * Input.GetAxis ("Vertical") * speed) + (transform.right * Input.GetAxis ("Horizontal") * speed);
             controller.Move (moveDirection * Time.deltaTime);
-            // Keeps camera rig from moving to high
+            // Keeps camera rig from moving to high -- this will be adjusted to whatever is considered sea level
             if (controller.transform.position.y > 1) {
                 controller.transform.position = new Vector3 (controller.transform.position.x, 1, controller.transform.position.z);
             }
-            // Keeps camera rig from moving to low
+            // Keeps camera rig from moving to low -- this will be adjusted to whatever is considered sea level
             if (controller.transform.position.y < 1) {
                 controller.transform.position = new Vector3 (controller.transform.position.x, 1, controller.transform.position.z);
             }
@@ -192,6 +195,7 @@ public class CameraController : MonoBehaviour {
     }
     // Used to calculate all camera rotations
     public void RotationLogic () {
+
         desiredRotation = Quaternion.Euler (yDeg, xDeg, 0);
         currentRotation = transform.rotation;
         rotation = Quaternion.Lerp (currentRotation, desiredRotation, Time.deltaTime * zoomDampening);
