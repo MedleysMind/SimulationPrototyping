@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class MenuButtons : MonoBehaviour {
 
-    private bool paused = false;
+    public static bool paused = false;
     public GameObject PauseMenu;
 
     // Start is called before the first frame update

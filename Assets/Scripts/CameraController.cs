@@ -1,54 +1,69 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour {
-
+//// Public Controllers
+    // Used to set what is considered the camera
     public static CameraController instance;
+    // public static CameraController cameraMain;
+    // Links the Camera Rig to the camera
+    public CharacterController controller;
+    // Allows the Camera Rig to be set as focus
     public Transform target;
-    public Vector3 targetOffset;
+//// Public Floats
     public float distance = 5.0f;
     public float maxDistance = 20;
     public float minDistance = .6f;
     public float xSpeed = 200.0f;
     public float ySpeed = 200.0f;
-    public int yMinLimit = -80;
-    public int yMaxLimit = 80;
-    public int zoomRate = 40;
     public float zoomDampening = 5.0f;
     public float zoomAmount = .5f;
     public float rotationAmount = .25f;
-
-    public float panSpeed = 1000;
+//// Public Ints
+    // Sets the minimum y axis mouse orbit -- 1 Prevents clipping through bottom of map
+    public int yMinLimit = 1;
+    // Sets the maximum y axis mouse orbit-- 70 Pevents odd camera functionality 
+    public int yMaxLimit = 70;
+    public int zoomRate = 40;
+//// Public Bools
+    public bool edgeScroll = true;
+    public bool mousePan = true;
+    public static bool cameraRigFocus = true;
+//// Private Floats
     private float xDeg = 0.0f;
     private float yDeg = 0.0f;
-    public float speed = 100;
+    // Used as a base float in many functions
+    private float speed = 100;
     private float currentDistance;
     private float desiredDistance;
+//// Private Quaternions
     private Quaternion currentRotation;
     private Quaternion desiredRotation;
     private Quaternion rotation;
+//// Private Vectors
+    private Vector3 targetOffset;
     private Vector3 position;
     private Vector3 moveDirection;
-    public CharacterController controller;
-    public bool edgeScroll = true;
-    public bool mousePan = true;
-    public bool cameraRigFocus = true;
 
     void Start () {
         Init ();
         // Sets the current focus as this camera rig, allows for focus on specific game objects
         instance = this;
+        // cameraMain = this;
+        // target = cameraRig;
     }
     void OnEnable () { Init (); }
 
     public void Init () {
+        // instance = cameraRig;
         //If there is no target, create a temporary target at 'distance' from the cameras current viewpoint
-        if (!target) {
-            GameObject go = new GameObject ("Cam Target");
-            go.transform.position = transform.position + (transform.forward * distance);
-            target = go.transform;
-        }
+        // if (!target) {
+        //     GameObject go = new GameObject ("Cam Target");
+        //     go.transform.position = transform.position + (transform.forward * distance);
+        //     target = go.transform;
+        // }
         // Grabs the current distance as starting point
         distance = Vector3.Distance (transform.position, target.position);
         currentDistance = distance;
@@ -66,18 +81,21 @@ public class CameraController : MonoBehaviour {
 
     public void Update () {
         // Only allows input on camera rig if it is the object in focus
-        if (!cameraRigFocus) {
-            
+        if (cameraRigFocus) {
+
             // Allows player to turn off in settings
             if (!mousePan) {
                 // Mouse pan movement logic
                 if (Input.GetMouseButton (1)) {
+                    if(this.position.y < 50){
+                        
+                    }
                     // transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * speed/5, -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * speed/5, 0);
                     //grab the rotation of the camera so we can move in a psuedo local XY space
                     // target.rotation = transform.rotation;
                     // target.Translate(Vector3.right * -Input.GetAxis("Mouse X") * speed/5, target);
                     // target.Translate(transform.forward * -Input.GetAxis("Mouse Y") * speed/5);
-                    moveDirection = (transform.forward * -Input.GetAxis ("Mouse Y") * speed * 10f) + (transform.right * -Input.GetAxis ("Mouse X") * speed * 10f);
+                    moveDirection = (transform.forward * -Input.GetAxis ("Mouse Y") * speed * 5f) + (transform.right * -Input.GetAxis ("Mouse X") * speed * 5f);
                     controller.Move (moveDirection * Time.deltaTime);
                 }
             }
@@ -109,8 +127,9 @@ public class CameraController : MonoBehaviour {
      * Camera logic on LateUpdate to only update after all character movement logic has been handled. 
      */
     void LateUpdate () {
+
         // Only allows input on camera rig if it is the object in focus
-        if (!cameraRigFocus) {
+        if (cameraRigFocus) {
             // WASD directional movement on camera rig controller
             moveDirection = (transform.forward * Input.GetAxis ("Vertical") * speed) + (transform.right * Input.GetAxis ("Horizontal") * speed);
             controller.Move (moveDirection * Time.deltaTime);
@@ -126,6 +145,7 @@ public class CameraController : MonoBehaviour {
 
         // If middle mouse is selected, ORBIT ROTATION
         if (Input.GetMouseButton (2)) {
+
             xDeg += Input.GetAxis ("Mouse X") * xSpeed * 0.02f;
             yDeg -= Input.GetAxis ("Mouse Y") * ySpeed * 0.02f;
 
@@ -135,6 +155,7 @@ public class CameraController : MonoBehaviour {
             yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
             // Sets camera rotation 
             RotationLogic ();
+
         }
 
         // Rotates the camera using selected keys, has a slight pre-shake when switching directions
@@ -164,9 +185,11 @@ public class CameraController : MonoBehaviour {
 
         }
         ////////Orbit Position
-
-        // affect the desired Zoom distance if we roll the scrollwheel
-        desiredDistance -= Input.GetAxis ("Mouse ScrollWheel") * Time.deltaTime * zoomRate * Mathf.Abs (desiredDistance);
+        // Pevents zooming while mouse is over UI elements
+        if (!EventSystem.current.IsPointerOverGameObject ()) {
+            // affect the desired Zoom distance if we roll the scrollwheel
+            desiredDistance -= Input.GetAxis ("Mouse ScrollWheel") * Time.deltaTime * zoomRate * Mathf.Abs (desiredDistance);
+        }
         //clamp the zoom min/max
         desiredDistance = Mathf.Clamp (desiredDistance, minDistance, maxDistance);
         // For smoothing of the zoom, lerp distance
