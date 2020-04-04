@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5753053726395605736}
   - component: {fileID: 4146179853245858234}
   - component: {fileID: 1704742514348891447}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cube Blueprint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

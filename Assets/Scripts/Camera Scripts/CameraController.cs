@@ -35,25 +35,18 @@ public class CameraController : MonoBehaviour {
 
     // Layer Selection
     public LayerMask collisionLayers;
+    public LayerMask bumperMask;
     // Private Bools
     private bool CollisionDetected = false;
 
     //// Private Floats
-    private float xDeg = 0.0f;
-    private float yDeg = 0.0f;
-    // Used as a base float in many functions
-    private float speed = 100;
-    private float panSpeed;
-    private float currentDistance;
-    private float desiredDistance;
+    private float xDeg = 0.0f, yDeg = 0.0f, speed = 100, panSpeed, currentDistance, desiredDistance;
     //// Private Quaternions
-    private Quaternion currentRotation;
-    private Quaternion desiredRotation;
-    private Quaternion rotation;
+    private Quaternion currentRotation, desiredRotation, rotation;
     //// Private Vectors
     // private Vector3 targetOffset;
     private Vector3 position;
-    private Vector3 moveDirection;
+    public static Vector3 moveDirection;
 
     void Start () {
         Init ();
@@ -77,9 +70,10 @@ public class CameraController : MonoBehaviour {
         xDeg = Vector3.Angle (Vector3.right, transform.right);
         yDeg = Vector3.Angle (Vector3.up, transform.up);
     }
-//If object within certain distance from raycast, move camera position up, back, forward, left and right just enough to offset collision
+    //If object within certain distance from raycast, move camera position up, back, forward, left and right just enough to offset collision
 
     public void Update () {
+        RayCastLogic ();
         // Rotation logic on Update allows for smooth rotation
         RotationLogic ();
         // If camera is locked onto an object
@@ -169,18 +163,94 @@ public class CameraController : MonoBehaviour {
      * Camera logic on LateUpdate to only update after all character movement logic has been handled. 
      */
     void LateUpdate () {
-
         // Only allows input on camera rig if it is the object in focus
         if (cameraRigFocus) {
             // WASD directional movement on camera rig controller
             moveDirection = (transform.forward * Input.GetAxis ("Vertical") * panSpeed / 4) + (transform.right * Input.GetAxis ("Horizontal") * panSpeed / 4);
             controller.Move (moveDirection * Time.deltaTime);
             // Keeps camera rig from moving to high -- this will be adjusted to whatever is considered sea level
-            if (controller.transform.position.y > 1) {
-                controller.transform.position = new Vector3 (controller.transform.position.x, 1, controller.transform.position.z);
-            }
+            // 
+            // RaycastHit controllerHit;
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.down), out controllerHit, bumperMask)) {
+            //     Debug.Log ("Testing");
+
+            // } else {
+            // controller.transform.position = controllerHit.point;
+            // Debug.Log ("Testing");
+
+            // }
+
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.down), out controllerHit, 10f, bumperMask) || Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.forward), out controllerHit, 10f, bumperMask)) {
+            //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.down) * controllerHit.distance, Color.yellow);
+            //     if (controllerHit.distance > 1) {
+            //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
+            //         // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //         // Debug.Log("Reset Height");
+            //     controller.transform.position = controllerHit.point;
+            //     }
+            // }
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.up), out controllerHit, 50f, bumperMask)) {
+            //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.up) * controllerHit.distance, Color.yellow);
+            //     if (controllerHit.distance > .5) {
+            //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
+            //         // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //         // Debug.Log("Reset Height");
+            //     controller.transform.position = controllerHit.point;
+            //     }
+            // }
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.forward), out controllerHit, 50f, bumperMask)) {
+            //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.forward) * controllerHit.distance, Color.yellow);
+            //     if (controllerHit.distance > .5) {
+            //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
+            //         // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //         // Debug.Log("Reset Height");
+            //     controller.transform.position = controllerHit.point;
+            //     }
+            // }
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.backward), out controllerHit, 50f, bumperMask)) {
+            //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.backward) * controllerHit.distance, Color.yellow);
+            //     if (controllerHit.distance > .5) {
+            //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
+            //         // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //         // Debug.Log("Reset Height");
+            //     controller.transform.position = controllerHit.point;
+            //     }
+            // }
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.left), out controllerHit, 50f, bumperMask)) {
+            //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.left) * controllerHit.distance, Color.yellow);
+            //     if (controllerHit.distance > .5) {
+            //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
+            //         // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //         // Debug.Log("Reset Height");
+            //     controller.transform.position = controllerHit.point;
+            //     }
+            // }
+            // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.right), out controllerHit, 50f, bumperMask)) {
+            //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.right) * controllerHit.distance, Color.yellow);
+            //     if (controllerHit.distance > .5) {
+            //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
+            //         // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //         // Debug.Log("Reset Height");
+            //     controller.transform.position = controllerHit.point;
+            //     }
+            // }
+            // if (controllerHit.distance < 1) {
+            //     controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance* Time.deltaTime, controller.transform.position.z);
+            //     // controller.Move (CameraController.moveDirection * Time.deltaTime);
+            //     Debug.Log("Reset Height");
+
+            // }
+            // Debug.Log("Reset Height");
+
+            // }
+            // if (controller.transform.position.y > 1) {
+            //     controller.transform.position = new Vector3 (controller.transform.position.x, 1, controller.transform.position.z);
+            // }
             // Keeps camera rig from moving to low -- this will be adjusted to whatever is considered sea level
             if (controller.transform.position.y < 1) {
+                controller.transform.position = new Vector3 (controller.transform.position.x, 1, controller.transform.position.z);
+            }
+            if (controller.transform.position.y > 1) {
                 controller.transform.position = new Vector3 (controller.transform.position.x, 1, controller.transform.position.z);
             }
         }
@@ -251,7 +321,82 @@ public class CameraController : MonoBehaviour {
         // position = target.position - (rotation * Vector3.forward * currentDistance + targetOffset);
         transform.position = position;
     }
-  
+
+
+
+/////////////////////// FIX THIS ////////////////////////////////
+    public void RayCastLogic () {
+        RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.down), out hit, 25, collisionLayers)) {
+            Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.down) * hit.distance, Color.green);
+            if (hit.distance <= 2) {
+
+                yDeg += rotationAmount * ySpeed * 0.02f;
+                yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
+                moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * panSpeed / 4);
+
+                // Sets camera rotation 
+                RotationLogic ();
+
+            }
+        }
+        if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.forward), out hit, 25, collisionLayers)) {
+            Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.forward) * hit.distance, Color.red);
+            if (hit.distance <= 5) {
+                // desiredDistance -= Input.GetAxis ("Mouse ScrollWheel") * Time.deltaTime * zoomRate * Mathf.Abs (desiredDistance);
+                yDeg -= rotationAmount * ySpeed * 0.02f;
+                yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
+                moveDirection = (transform.forward * Input.GetAxis ("Vertical") / 10) + (transform.right * Input.GetAxis ("Horizontal") / 10);
+                controller.Move (moveDirection * Time.deltaTime);
+                // yDeg += rotationAmount * ySpeed * 0.002f;
+                // yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
+                // Sets camera rotation 
+                // controller.Move (-moveDirection * Time.deltaTime);
+
+                RotationLogic ();
+            }
+        }
+        if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.back), out hit, 25, collisionLayers)) {
+            Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.back) * hit.distance, Color.yellow);
+            if (hit.distance <= 2) {
+                yDeg += rotationAmount * ySpeed * 0.002f;
+                yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
+                // Sets camera rotation 
+                // controller.Move (-moveDirection * Time.deltaTime);
+                moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * 0);
+
+                RotationLogic ();
+
+            }
+        }
+        if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.left), out hit, 25, collisionLayers)) {
+            Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.left) * hit.distance, Color.yellow);
+            if (hit.distance <= 2) {
+                // Forces camera away from layer
+                xDeg -= rotationAmount * xSpeed * 0.03f;
+                // Sets camera rotation 
+                moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * 0);
+
+                RotationLogic ();
+            }
+        }
+        if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.right), out hit, 25, collisionLayers)) {
+            Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.right) * hit.distance, Color.yellow);
+            if (hit.distance <= 2) {
+                xDeg += rotationAmount * xSpeed * 0.03f;
+                // Sets camera rotation 
+                moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * 0);
+
+                RotationLogic ();
+            }
+        }
+    }
+
+/////////////////////// FIX THIS //////////////////////////////// ^^^^^
+
+
+
     // Used to calculate all camera rotations
     public void RotationLogic () {
 
@@ -268,8 +413,6 @@ public class CameraController : MonoBehaviour {
             angle -= 360;
         return Mathf.Clamp (angle, min, max);
     }
-
-
 
     //     void OnCollisionEnter (Collision collisionLayers) {
     //     Debug.Log ("Clipping in Ground");

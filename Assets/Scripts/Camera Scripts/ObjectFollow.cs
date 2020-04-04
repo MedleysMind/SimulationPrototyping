@@ -28,7 +28,7 @@ public class ObjectFollow : MonoBehaviour {
         // Removes object as current camera focus
         if (Input.GetMouseButtonDown (1) && objectFollowing == true) {
             // Sets focus position back to the camera rig
-                // CameraController.instance.controller.Move (moveVector * Time.deltaTime);
+                CameraController.instance.controller.Move (moveVector * Time.deltaTime);
 
             CameraController.instance.target = CameraController.instance.controller.transform;
             CameraController.cameraRigFocus = true;
@@ -48,9 +48,9 @@ public class ObjectFollow : MonoBehaviour {
             }
             if (clickCounter >= 2) {
                 // interactionUI.SetActive (false);
-                // moveVector = transform.position - CameraController.instance.controller.transform.position;
+                moveVector = transform.position - CameraController.instance.controller.transform.position;
                 // moveVector = moveVector * 1;
-                // CameraController.instance.controller.Move (moveVector * Time.deltaTime);
+                CameraController.instance.controller.Move (moveVector * Time.deltaTime);
                 //  Vector3.Lerp(CameraController.instance.controller.transform.position, moveVector, Time.deltaTime);
                 CameraController.instance.controller.transform.position = transform.position;
                 CameraController.instance.target = transform;
