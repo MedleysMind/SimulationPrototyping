@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RayCast : MonoBehaviour
+public class CameraRigManager : MonoBehaviour
 {
     public LayerMask bumperMask;
-    private Vector3 moveDirection;
-    public CharacterController controller;
+    public static bool onGround;
+    public static Vector3 lastPosition;
+    private float leavingPosition;
+
 
 
 void Start(){
-    // controller = this;
 }
     void Update()
     {
@@ -78,4 +79,28 @@ void Start(){
         //     Debug.Log("Did not Hit");
         // }
     }
+void OnCollisionEnter(Collision col){
+    // Debug.Log("colliding");
+     if (col.gameObject.tag == "Ground"){
+    // Debug.Log("On Ground");
+    onGround = true;
+     } 
+}
+void OnCollisionStay(Collision col){
+    // Debug.Log("colliding");
+     if (col.gameObject.tag == "Ground"){
+    // Debug.Log("On Ground");
+    onGround = true;
+         lastPosition = new Vector3 (CameraController.instance.controller.transform.position.x, CameraController.instance.controller.transform.position.y, CameraController.instance.controller.transform.position.z);
+     } 
+}
+void OnCollisionExit(Collision col){
+    // Debug.Log("colliding");
+     if (col.gameObject.tag == "Ground"){
+    // Debug.Log("Off Ground");
+    onGround = false;
+      leavingPosition =  CameraController.instance.controller.transform.position.y;
+         
+     } 
+}
 }

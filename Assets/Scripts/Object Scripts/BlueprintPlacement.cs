@@ -27,7 +27,6 @@ void Start(){
     // isColliding = false;
     // }
     isColliding = true;
-    // Debug.Log (isColliding);
   }
   void OnCollisionExit (Collision collision) {
     if (collision.gameObject.name == "Terrain") {

@@ -91,10 +91,14 @@ public class PlaceObject : MonoBehaviour {
             //prevents object from clipping through ground layer ***NEED THIS
             tempObject.transform.position += new Vector3 (0f, BlueprintPlacement.objectOffsetY, 0f);
             // Allows object being placed to rotate to orientation of terrain -- Might be needed for hills
-            // temporaryObjectBlueprint.transform.rotation = Quaternion.FromToRotation (Vector3.up, hitInfo.normal);
+            if(tempObject.tag == "Animal"){
+            tempObject.transform.rotation = Quaternion.FromToRotation (Vector3.up, hitInfo.normal);
+            }
 
         } else {
             DestroyImmediate (tempObject, true);
+                objectInHand = false;
+
         }
     }
 
@@ -124,7 +128,6 @@ public class PlaceObject : MonoBehaviour {
             if (BlueprintPlacement.isColliding == false) {
                 // Only allows object placement when not clicking on UI element
                 if (!EventSystem.current.IsPointerOverGameObject ()) {
-
                     // Add logic for decoration and foliage items to be placed as many times as player would like
                     if (BlueprintPlacement.multiPlacedItem == true) {
                         DestroyImmediate (tempObject, true);
@@ -161,6 +164,7 @@ public class PlaceObject : MonoBehaviour {
                         objectInHand = false;
                     }
                 }
+                
             }
             // If a UI item is click with an object in hand, destroys object
             if (EventSystem.current.IsPointerOverGameObject ()) {
