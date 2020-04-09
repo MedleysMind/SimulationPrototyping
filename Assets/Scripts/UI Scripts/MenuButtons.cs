@@ -41,14 +41,16 @@ public class MenuButtons : MonoBehaviour {
     // In game button management
     public void PauseGame () {
         PauseMenu.SetActive (true);
-        Time.timeScale = 0.0f;
         paused = true;
+        Time.timeScale = 0.0f;
 
     }
     public void ResumeGame () {
         paused = false;
         PauseMenu.SetActive (false);
-        Time.timeScale = 1.0f;
+        if (WorldClock.worldPaused == false) {
+            Time.timeScale = 1.0f;
+        } else{ Time.timeScale = 0.0f;}
 
     }
     public void ExitToMenu () {

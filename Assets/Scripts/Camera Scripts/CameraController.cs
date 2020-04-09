@@ -40,6 +40,7 @@ public class CameraController : MonoBehaviour {
     public LayerMask bumperMask;
     // Private Bools
     private bool CollisionDetected = false;
+    private bool oribiting = false;
 
     //// Private Floats
     private float xDeg = 0.0f, yDeg = 0.0f, speed = 100, panSpeed, currentDistance, desiredDistance;
@@ -75,25 +76,30 @@ public class CameraController : MonoBehaviour {
     }
 
     public void Update () {
-        // currentPosition = new Vector3 (controller.transform.position.x, controller.transform.position.y, controller.transform.position.z);
-        SetZoomParameters ();
-        MousePanLogic ();
-        CollisionAvoidanceLogic ();
-        CameraRigLogic ();
-
+        if (MenuButtons.paused == false) {
+            SetZoomParameters ();
+            MousePanLogic ();
+            CollisionAvoidanceLogic ();
+            CameraRigLogic ();
+        }
     }
     /*
      * Camera logic on LateUpdate to only update after all character movement logic has been handled. 
      */
-    void FixedUpdate () {
-
-        RotationLogic ();
-
+    void LateUpdate () {
+        if (MenuButtons.paused == false) {
+            RotationLogic ();
+            OrbitLogic ();
+            KeyMovementInputs ();
+            CameraZoomLogic ();
+        }
+    }
+    public void OrbitLogic () {
         // If middle mouse is selected, ORBIT ROTATION
         if (Input.GetMouseButton (2)) {
-
-            xDeg += Input.GetAxis ("Mouse X") * xSpeed * 0.03f;
-            yDeg -= Input.GetAxis ("Mouse Y") * ySpeed * 0.03f;
+            oribiting = true;
+            xDeg += Input.GetAxis ("Mouse X") * xSpeed * 0.02f;
+            yDeg -= Input.GetAxis ("Mouse Y") * ySpeed * 0.02f;
 
             ////////OrbitAngle
 
@@ -101,13 +107,11 @@ public class CameraController : MonoBehaviour {
             yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
             // Sets camera rotation 
             RotationLogic ();
+        } else {
+            oribiting = false;
+
         }
-
-        KeyMovementInputs ();
-
-        CameraZoomLogic ();
     }
-
     public void CameraRigLogic () {
         // Only allows input on camera rig if it is the object in focus
         if (cameraRigFocus) {
@@ -166,19 +170,23 @@ public class CameraController : MonoBehaviour {
     }
     public void MousePanLogic () {
         // Only allows input on camera rig if it is the object in focus
-        if (cameraRigFocus && CollisionDetected == false) {
+        if (cameraRigFocus) {
             // Adjusts mouse pan speed depending on camera height
             if (this.position.y < 10) {
+                panSpeed = speed * .75f;
+            } else if (this.position.y < 20 && this.position.y > 10) {
+                panSpeed = speed * 1f;
+            } else if (this.position.y > 20 && this.position.y < 30) {
+                panSpeed = speed * 1.25f;
+            } else if (this.position.y > 30 && this.position.y < 40) {
                 panSpeed = speed * 1.5f;
-            } else if (this.position.y < 25 && this.position.y > 10) {
-                panSpeed = speed * 2.5f;
-            } else if (this.position.y > 25 && this.position.y < 50) {
-                panSpeed = speed * 3.5f;
+            } else if (this.position.y > 40 && this.position.y < 50) {
+                panSpeed = speed * 2f;
             } else if (this.position.y > 50) {
-                panSpeed = speed * 4f;
+                panSpeed = speed * 3f;
             }
             // Allows player to turn off in settings
-            if (!mousePan) {
+            if (!mousePan && oribiting == false) {
                 // Mouse pan movement logic
                 if (Input.GetMouseButton (1)) {
                     if (PlaceObject.objectInHand == false) {
@@ -226,13 +234,13 @@ public class CameraController : MonoBehaviour {
         // }
         if (Input.GetKey (KeyCode.Q)) {
             //uses original mouse rotation but replaces mouse input with rotationAmount variable
-            xDeg += rotationAmount * xSpeed * 0.03f;
+            xDeg += rotationAmount * xSpeed * 0.02f;
             // Sets camera rotation 
             RotationLogic ();
         }
         if (Input.GetKey (KeyCode.E)) {
             // replaces mouse input with rotationAmount variable
-            xDeg -= rotationAmount * xSpeed * 0.03f;
+            xDeg -= rotationAmount * xSpeed * 0.02f;
             // Sets camera rotation 
             RotationLogic ();
         }
@@ -258,7 +266,6 @@ public class CameraController : MonoBehaviour {
         if (Input.GetKey (KeyCode.X)) {
             desiredDistance += zoomAmount * Time.unscaledDeltaTime * Mathf.Abs (desiredDistance);
         }
-
     }
 
     /////////////////////// FIX THIS ////////////////////////////////
@@ -268,168 +275,68 @@ public class CameraController : MonoBehaviour {
         if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.down), out hit, 25, collisionLayers)) {
             Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.down) * hit.distance, Color.green);
             if (hit.distance <= 2) {
-
                 yMinLimit = hit.point.y;
-                yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
+                // yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
                 // moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * panSpeed / 4);
-                desiredRotation.y = hit.point.y;
+                // desiredRotation.y = hit.point.y;
                 // Sets camera rotation 
                 RotationLogic ();
 
-            } else{
+            }
+            if (hit.distance >= 5) {
                 yMinLimit = 2;
             }
         }
         if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.forward), out hit, 25, collisionLayers)) {
             Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.forward) * hit.distance, Color.red);
-            if (hit.distance <= 2) {
+            if (hit.distance < 2) {
+                speed = 50;
                 // minDistance = hit.distance;
                 // zoomDampening = 1000;
-                yMinLimit = hit.point.y;
+                // minDistance = hit.point.y + controller.transform.position.y;
 
-                desiredDistance += zoomAmount * Time.unscaledDeltaTime * Mathf.Abs (desiredDistance);
+                // desiredDistance = zoomAmount * Time.unscaledDeltaTime * Mathf.Abs (desiredDistance);
 
-                yDeg += rotationAmount * ySpeed * 0.002f / 2;
+                yDeg += rotationAmount * speed * 0.02f;
                 yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
                 // // Sets camera rotation 
                 // controller.Move (-moveDirection * Time.unscaledDeltaTime);
                 // moveDirection = (transform.forward * Input.GetAxis ("Vertical") * 0) + (transform.right * Input.GetAxis ("Horizontal") * 0);
 
                 RotationLogic ();
-            } 
+            }
         }
         if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.back), out hit, 25, collisionLayers)) {
             Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.back) * hit.distance, Color.yellow);
             if (hit.distance <= 2) {
-                yMinLimit = hit.point.y;
 
-                yDeg += rotationAmount * ySpeed * 0.002f;
+                yDeg += rotationAmount * speed * 0.02f;
                 yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
-                // Sets camera rotation 
-                // controller.Move (moveDirection * Time.unscaledDeltaTime);
-                // moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * 0);
-
                 RotationLogic ();
 
             }
         }
         if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.left), out hit, 25, collisionLayers)) {
             Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.left) * hit.distance, Color.yellow);
-            if (hit.distance <= 2) {
+            if (hit.distance < 2) {
+
                 // Forces camera away from layer
-                yMinLimit = hit.point.y;
-
-               desiredDistance += zoomAmount * Time.unscaledDeltaTime * Mathf.Abs (desiredDistance);
-                yDeg += rotationAmount * ySpeed * 0.002f / 2;
+                yDeg += rotationAmount * speed * 0.02f;
                 yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
-                // Sets camera rotation 
-                // moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * 0);
-
                 RotationLogic ();
             }
         }
         if (Physics.Raycast (transform.position, transform.TransformDirection (Vector3.right), out hit, 25, collisionLayers)) {
             Debug.DrawRay (transform.position, transform.TransformDirection (Vector3.right) * hit.distance, Color.yellow);
-            if (hit.distance <= 2) {
-                yMinLimit = hit.point.y;
+            if (hit.distance < 2) {
 
-            //    desiredDistance += zoomAmount * Time.unscaledDeltaTime * Mathf.Abs (desiredDistance);
-
-                yDeg += rotationAmount * ySpeed * 0.002f / 2;
+                yDeg += rotationAmount * speed * 0.02f;
                 yDeg = ClampAngle (yDeg, yMinLimit, yMaxLimit);
-                // Sets camera rotation 
-                moveDirection = (transform.forward * -Input.GetAxis ("Vertical") * 0) + (transform.right * -Input.GetAxis ("Horizontal") * 0);
-
                 RotationLogic ();
             }
+
         }
-
-        // Keeps camera rig from moving to high -- this will be adjusted to whatever is considered sea level
-        // 
-        // RaycastHit controllerHit;
-
-        // if (Physics.SphereCast (controller.transform.position, controller.height / 2, transform.TransformDirection (Vector3.down), out controllerHit, 25f, bumperMask)) {
-        //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.down) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance > 1) {
-        //         controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //         controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         Debug.Log("Reset Height");
-        //         controller.transform.position = controllerHit.point;
-        //     }
-        // if(controller.transform.position != controllerHit.point){
-        //      controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //     // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //     // Debug.Log("Reset Height");
-        //     controller.transform.position = controllerHit.point;
-        // }
-        // }
-
-        // if (Physics.Raycast (RigRigidBody.transform.position, transform.TransformDirection (Vector3.down), out controllerHit, 10f, bumperMask) || Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.forward), out controllerHit, 10f, bumperMask)) {
-        //     Debug.DrawRay (RigRigidBody.transform.position, transform.TransformDirection (Vector3.down) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance > 1) {
-        //         RigRigidBody.transform.position = new Vector3 (RigRigidBody.transform.position.x, controllerHit.distance - controllerHit.distance, RigRigidBody.transform.position.z);
-        //         // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         // Debug.Log("Reset Height");
-        //         RigRigidBody.transform.position = controllerHit.point;
-        //     }
-        // }
-        // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.up), out controllerHit, 50f, bumperMask)) {
-        //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.up) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance >.5) {
-        //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //         // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         // Debug.Log("Reset Height");
-        //         controller.transform.position = controllerHit.point;
-        //     }
-        // }
-        // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.forward), out controllerHit, 50f, bumperMask)) {
-        //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.forward) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance >.5) {
-        //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //         // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         // Debug.Log("Reset Height");
-        //         controller.transform.position = controllerHit.point;
-        //     }
-        // }
-        // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.back), out controllerHit, 50f, bumperMask)) {
-        //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.back) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance >.5) {
-        //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //         // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         // Debug.Log("Reset Height");
-        //         controller.transform.position = controllerHit.point;
-        //     }
-        // }
-        // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.left), out controllerHit, 50f, bumperMask)) {
-        //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.left) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance >.5) {
-        //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //         // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         // Debug.Log("Reset Height");
-        //         controller.transform.position = controllerHit.point;
-        //     }
-        // }
-        // if (Physics.Raycast (controller.transform.position, transform.TransformDirection (Vector3.right), out controllerHit, 50f, bumperMask)) {
-        //     Debug.DrawRay (controller.transform.position, transform.TransformDirection (Vector3.right) * controllerHit.distance, Color.yellow);
-        //     if (controllerHit.distance >.5) {
-        //         // controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance - controllerHit.distance, controller.transform.position.z);
-        //         // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //         // Debug.Log("Reset Height");
-        //         controller.transform.position = controllerHit.point;
-        //     }
-        // }
-        // if (controllerHit.distance < 1) {
-        //     controller.transform.position = new Vector3 (controller.transform.position.x, controllerHit.distance * Time.unscaledDeltaTime, controller.transform.position.z);
-        //     // controller.Move (CameraController.moveDirection * Time.unscaledDeltaTime);
-        //     // Debug.Log("Reset Height");
-
-        // }
-        // Debug.Log("Reset Height");
     }
-
-    /////////////////////// FIX THIS //////////////////////////////// ^^^^^
-
-    // Used to calculate all camera rotations
     public void RotationLogic () {
 
         desiredRotation = Quaternion.Euler (yDeg, xDeg, 0);
