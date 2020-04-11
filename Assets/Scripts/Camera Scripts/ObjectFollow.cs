@@ -23,7 +23,7 @@ public class ObjectFollow : MonoBehaviour {
         timeBetweenClicks = 0.2f;
         clickCounter = 0;
     }
-    void LateUpdate () {
+    void Update () {
 
         // Removes object as current camera focus
         if (Input.GetMouseButtonDown (1) && objectFollowing == true) {

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6203270936573492720}
   - component: {fileID: 4098607532978570939}
   - component: {fileID: -1321373302510357931}
+  - component: {fileID: -4209734982845133288}
   m_Layer: 9
   m_Name: Cube Main
   m_TagString: Untagged
@@ -125,3 +126,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isBuilding: 1
   interactionUI: {fileID: 0}
+--- !u!208 &-4209734982845133288
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4031329303235534901}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
