@@ -39,7 +39,6 @@ public class CameraController : MonoBehaviour {
     public LayerMask collisionLayers;
     public LayerMask bumperMask;
     // Private Bools
-    private bool CollisionDetected = false;
     private bool oribiting = false;
 
     //// Private Floats

@@ -6,10 +6,8 @@ using UnityEngine.UI;
 
 public class PlaceObject : MonoBehaviour {
     public static bool objectInHand = false;
-    [SerializeField]
-    private GameObject actualObject;
-    [SerializeField]
-    private GameObject blueprintObject;
+    public GameObject actualObject;
+    public GameObject blueprintObject;
 
     private GameObject tempObject;
     private float mouseWheelRotation;
