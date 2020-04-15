@@ -4,33 +4,32 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class AnimalAI : MonoBehaviour {
-    // Controls animals health value
-    public float health = 100f;
-    // Controls animals hunger value
-    public float hunger = 100f;
-    // Controls animals thirst value
-    public float thirst = 100f;
-    // Controls animals social value
-    public float social = 100f;
-    // Controls animals comfort value
-    public float comfort = 100f;
-    // Controls animals happiness value
-    public float happiness = 100f;
+    // This is the current AI agent
+    UnityEngine.AI.NavMeshAgent agent;
+    // Controls animals health, hunger, thirst, social, comfort and happiness values
+    public float health = 100f, hunger = 100f, thirst = 100f, social = 100f, comfort = 100f, happiness = 100f;
     // Is used to determine how quickly thirst and hunger values are depleted
     private float energyUsageMultiplier = 1f;
     // Location where food can be found
     private Vector3 feedingSpot;
     // Location where water can be found
     private Vector3 drinkingSpot;
-    // This is the current AI agent
-    UnityEngine.AI.NavMeshAgent agent;
+    // Once health = 0, trigger bool as true
+    public bool isDead = false;
+    // Dictates diet of the animal
+    public bool Herbivore = false;
+    public bool Carnivore = false;
+    // Dictates size of the animal
+    public bool small = false;
+    public bool medium = false;
+    public bool large = false;
+
     // Only accepts clicks on ground ---- FOR DEBUGGING ONLY
     public LayerMask clickMask;
-
     void Start () {
         agent = GetComponent<UnityEngine.AI.NavMeshAgent> ();
         // Sets the spot for hunger to be added ---- FOR DEBUGGING ONLY
-        feedingSpot = new Vector3 (0, 1, 0);
+        feedingSpot = new Vector3 (0, 1 / 2, 0);
         // Sets the Hunger Controller to run every 2 seconds starting 5 seconds after creation
         InvokeRepeating ("HungerController", 5.0f, 2.0f);
         // Sets the Thirst Controller to run every 2 seconds starting 5 seconds after creation
@@ -44,7 +43,9 @@ public class AnimalAI : MonoBehaviour {
     }
 
     void Update () {
+        // ExplosionDamage(agent.transform.position, 5, clickMask);
         HealthController ();
+
         if (agent.hasPath == true) {
             energyUsageMultiplier = 2;
         }
@@ -62,6 +63,18 @@ public class AnimalAI : MonoBehaviour {
         //     }
         // }
     }
+    // void ExplosionDamage(Vector3 center, float radius, LayerMask clickMask)
+    //     {
+    //         Collider[] hitColliders = Physics.OverlapSphere(center, radius);
+    //         int i = 0;
+    //         if (i < hitColliders.Length)
+    //         {
+    //             Debug.Log("Collision in sphere");
+    //             // hitColliders[i].SendMessage("AddDamage");
+    //             i++;
+    //         }
+    //     }
+
     // Hunger slowly goes down over time and can go down quicker the more the animal moves. Once low enough they will search for food.
     void HungerController () {
         // every two seconds hunger goes down by a base times a movement multiplier
@@ -77,12 +90,9 @@ public class AnimalAI : MonoBehaviour {
             happiness--;
             comfort--;
 
-            agent.destination = feedingSpot;
         }
-        // At location of food source, add to hunger value
-        if (agent.destination == new Vector3 (0, 1, 0)) {
-            hunger += 5f;
-        }
+        FindFood();
+        AnimalMovement(this.transform.position);
         // If hunger is too low, health begins to go down
         if (hunger <= 25) {
             happiness--;
@@ -151,12 +161,20 @@ public class AnimalAI : MonoBehaviour {
             health = 100;
         }
         if (health == 0) {
+            isDead = true;
             agent.enabled = !agent.enabled;
-            Destroy (this.gameObject);
-            DestroyImmediate (this, true);
+            health = 0;
+            hunger = 0;
+            thirst = 0;
+            social = 0;
+            comfort = 0;
+            happiness = 0;
+            // Destroy (this.gameObject);
+            // DestroyImmediate (this, true);
         }
         //    GameplayUI.AnimalPanel.GetComponent<AnimalInfo>().health = health;
     }
+
     // void Wander(){
     //     Vector3 randomDirection = Random.insideUnitSphere * walkRadius;
     //      randomDirection += transform.position;
@@ -165,12 +183,41 @@ public class AnimalAI : MonoBehaviour {
     //  Vector3 finalPosition = hit.position;
     // }
     // This is responsible for updating the Animal Info Panel
+
     public void AnimalInfoPanelUpdater () {
         GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().health = health;
-        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().SetHunger (hunger);
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().hunger = hunger;
         GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().thirst = thirst;
         GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().social = social;
         GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().comfort = comfort;
         GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().happiness = happiness;
+    }
+    public void AnimalInfoPanelResetter () {
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().health = 0;
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().hunger = 0;
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().thirst = 0;
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().social = 0;
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().comfort = 0;
+        GameplayUI.AnimalPanel.GetComponent<AnimalInfo> ().happiness = 0;
+    }
+
+    public void AnimalMovement (Vector3 targetPosition) {
+        if (isDead == false) {
+            agent.destination = targetPosition;
+        }
+    }
+    public void FindFood () {
+        if (Herbivore == true) {
+            // Search for plants of same or smaller size
+            if(small == true){}
+            if(medium == true){}
+            if(large == true){}
+        }
+        if(Carnivore == true){
+            //Search for animals
+            if(small == true){}
+            if(medium == true){}
+            if(large == true){}
+        }
     }
 }

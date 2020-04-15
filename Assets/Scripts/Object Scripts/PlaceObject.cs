@@ -64,7 +64,7 @@ public class PlaceObject : MonoBehaviour {
 
         // DestroyImmediate (temporaryObjectBlueprint, true);
         // Prevents placing objects while focused on another
-        if (ObjectFollow.objectFollowing == false) {
+        if (CameraFollow.objectFollowing == false) {
 
             // If already holding an object destroy it, otherwise create a new one
             if (objectInHand == true) {

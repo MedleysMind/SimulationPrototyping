@@ -149,9 +149,9 @@ public class CameraController : MonoBehaviour {
         transform.position = position;
     }
     public void SetZoomParameters () {
-        if (ObjectFollow.objectFollowing == true) {
+        if (CameraFollow.objectFollowing == true) {
             // If the camera is following a building, set max and min zoom to avoid clipping
-            if (ObjectFollow.typeOfObjectDefine == true) {
+            if (CameraFollow.typeOfObjectDefine == true) {
                 maxDistance = 75;
                 minDistance = 15;
             }
@@ -162,7 +162,7 @@ public class CameraController : MonoBehaviour {
             }
         }
         // If not following an object, set max and min zoom distance back to original parameters
-        if (ObjectFollow.objectFollowing == false) {
+        if (CameraFollow.objectFollowing == false) {
             maxDistance = 150;
             minDistance = 2;
         }

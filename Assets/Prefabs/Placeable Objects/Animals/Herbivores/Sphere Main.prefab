@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 9220468024029079082}
   m_Layer: 10
   m_Name: Sphere Main
-  m_TagString: Animal
+  m_TagString: Herbivore
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -170,4 +170,5 @@ MonoBehaviour:
   happiness: 100
   clickMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 1280
+  isDead: 0

@@ -18,10 +18,16 @@ public class AnimalInfo : MonoBehaviour
  public float happiness;
  
  void Start(){
+      HealthSlider.value = health;
+     HungerSlider.value = hunger;
+     ThirstSlider.value = thirst;
+     SocialSlider.value = social;
+     ComfortSlider.value = comfort;
+     HappinessSlider.value = happiness;
  }
  public void Update(){
      HealthSlider.value = health;
-    //  HungerSlider.value = hunger;
+     HungerSlider.value = hunger;
      ThirstSlider.value = thirst;
      SocialSlider.value = social;
      ComfortSlider.value = comfort;
